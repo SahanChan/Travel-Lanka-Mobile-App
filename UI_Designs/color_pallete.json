@@ -1,0 +1,12 @@
+{
+  "background": "#F8FAFC",
+  "text": "#0F172A",
+  "text_dim": "#64748B",
+  "primary": "#2563EB",
+  "primary_shade": "#1D4ED8",
+  "secondary": "#FACC15",
+  "secondary_shade": "#EAB308",
+  "accent": "#FCD34D",
+  "error": "#EF4444",
+  "success": "#10B981"
+}
