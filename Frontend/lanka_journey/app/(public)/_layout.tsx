@@ -1,11 +1,11 @@
 import { View, Text } from "react-native";
 import React from "react";
 
-const Trips = () => {
+const _Layout = () => {
   return (
-    <View className="flex-1">
-      <Text>Trips</Text>
+    <View>
+      <Text>_Layout</Text>
     </View>
   );
 };
-export default Trips;
+export default _Layout;

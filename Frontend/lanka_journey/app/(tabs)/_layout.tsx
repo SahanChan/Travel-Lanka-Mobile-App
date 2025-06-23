@@ -1,18 +1,7 @@
-import { createBottomTabNavigator } from "@react-navigation/bottom-tabs";
-
-import {
-  View,
-  Text,
-  Image,
-  TouchableOpacity,
-  Dimensions,
-  TouchableOpacityProps,
-} from "react-native";
+import { TouchableOpacity, TouchableOpacityProps } from "react-native";
 import React from "react";
 import { Tabs } from "expo-router";
-import { icons } from "@/constants/icons";
 import CreateTripButton from "@/components/CreateTripButton";
-import { Ionicons } from "@expo/vector-icons";
 import TabBarIcon from "@/components/TabBarIcon";
 
 const TabsLayout = () => {
@@ -73,7 +62,7 @@ const TabsLayout = () => {
           tabBarShowLabel: false,
           title: "Add",
           headerShown: false,
-          // tabBarIcon: ({}) => <CreateTripButton iconName="add" />,
+
           tabBarButton: (props) => (
             <TouchableOpacity
               {...(props as TouchableOpacityProps)}
@@ -123,4 +112,5 @@ const TabsLayout = () => {
     </Tabs>
   );
 };
+
 export default TabsLayout;

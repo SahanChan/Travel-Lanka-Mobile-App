@@ -1,12 +1,15 @@
-import home from "../assets/icons/home.png"
-import save from "../assets/icons/save.png"
-import user from "../assets/icons/user.png"
-import world from "../assets/icons/world.png"
-
+import activities from "../assets/icons/activites.png";
+import hotels from "../assets/icons/hotels.png";
+import places from "../assets/icons/places.png";
+import restaurant from "../assets/icons/restuarant.png";
+import google from "../assets/icons/google.png";
+import facebook from "../assets/icons/facebook.png";
 
 export const icons = {
-    home,
-    save,
-    user,
-    world
-}
+  activities,
+  hotels,
+  places,
+  restaurant,
+  google,
+  facebook,
+};

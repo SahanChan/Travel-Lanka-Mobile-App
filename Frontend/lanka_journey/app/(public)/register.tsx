@@ -1,11 +1,11 @@
 import { View, Text } from "react-native";
 import React from "react";
 
-const Trips = () => {
+const Register = () => {
   return (
-    <View className="flex-1">
-      <Text>Trips</Text>
+    <View>
+      <Text>Register</Text>
     </View>
   );
 };
-export default Trips;
+export default Register;

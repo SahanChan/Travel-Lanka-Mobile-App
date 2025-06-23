@@ -1,11 +1,11 @@
 import { View, Text } from "react-native";
 import React from "react";
 
-const Trips = () => {
+const Login = () => {
   return (
-    <View className="flex-1">
-      <Text>Trips</Text>
+    <View>
+      <Text>Login</Text>
     </View>
   );
 };
-export default Trips;
+export default Login;
