@@ -3,7 +3,7 @@ import React from 'react'
 
 const Trips = () => {
     return (
-        <View>
+        <View className="bg-primary">
             <Text>Trips</Text>
         </View>
     )
