@@ -9,7 +9,7 @@ import {
 import React, { useState } from "react";
 import Header from "@/components/Header";
 import { icons } from "@/constants/icons";
-import TopPlacesCard from "@/components/TopPlacesCard";
+import HomeScreenCard from "@/components/HomeScreenCard";
 import { images } from "@/constants/images";
 import {
   categories,
@@ -29,15 +29,7 @@ export default function Index() {
   return (
     <>
       <Header />
-      {/*<View className="px-5 py-2">*/}
-      {/*  <Text className="text-lg font-semibold">*/}
-      {/*    Welcome,{" "}*/}
-      {/*    {user?.firstName ||*/}
-      {/*      user?.username ||*/}
-      {/*      user?.emailAddresses[0].emailAddress}*/}
-      {/*  </Text>*/}
-      {/*  <SignOutButton />*/}
-      {/*</View>*/}
+
       <ScrollView
         className="flex-1 "
         showsVerticalScrollIndicator={false}
@@ -89,7 +81,7 @@ export default function Index() {
                   paddingRight: 10, // optional: spacing at the end
                 }}
                 renderItem={({ item }) => (
-                  <TopPlacesCard
+                  <HomeScreenCard
                     image={item.image}
                     title={item.title}
                     location={item.location}
@@ -120,7 +112,7 @@ export default function Index() {
                   paddingRight: 10, // optional: spacing at the end
                 }}
                 renderItem={({ item }) => (
-                  <TopPlacesCard
+                  <HomeScreenCard
                     image={item.image}
                     title={item.title}
                     location={item.location}
@@ -151,7 +143,7 @@ export default function Index() {
                   paddingRight: 10, // optional: spacing at the end
                 }}
                 renderItem={({ item }) => (
-                  <TopPlacesCard
+                  <HomeScreenCard
                     image={item.image}
                     title={item.title}
                     location={item.location}
@@ -182,7 +174,7 @@ export default function Index() {
                   paddingRight: 10, // optional: spacing at the end
                 }}
                 renderItem={({ item }) => (
-                  <TopPlacesCard
+                  <HomeScreenCard
                     image={item.image}
                     title={item.title}
                     location={item.location}

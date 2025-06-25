@@ -1,7 +1,8 @@
-import { useClerk } from "@clerk/clerk-expo";
+import { useClerk, useAuth } from "@clerk/clerk-expo";
 import * as Linking from "expo-linking";
 import { Text, TouchableOpacity } from "react-native";
 import { useState } from "react";
+import { router } from "expo-router";
 
 export const SignOutButton = () => {
   // Use `useClerk()` to access the `signOut()` function
@@ -14,8 +15,9 @@ export const SignOutButton = () => {
     setLoading(true);
     try {
       await signOut();
-      // Redirect to your desired page
-      Linking.openURL(Linking.createURL("/"));
+
+      // Use router.replace instead of Linking to properly reset the navigation stack
+      router.replace("/(auth)/sign-in");
     } catch (err) {
       // See https://clerk.com/docs/custom-flows/error-handling
       // for more info on error handling
@@ -26,12 +28,12 @@ export const SignOutButton = () => {
   };
 
   return (
-    <TouchableOpacity 
+    <TouchableOpacity
       onPress={handleSignOut}
-      className="bg-gray-100 py-2 px-4 rounded-lg"
+      className="mt-6 mx-6 py-3 border border-secondary rounded-xl"
       disabled={loading}
     >
-      <Text className="text-gray-700 font-medium">
+      <Text className="text-center text-yellow-500 font-semibold text-base">
         {loading ? "Signing out..." : "Sign out"}
       </Text>
     </TouchableOpacity>

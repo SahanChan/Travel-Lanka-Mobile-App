@@ -12,10 +12,28 @@ import {
   Pressable,
   ScrollView,
 } from "react-native";
-import React, { useState } from "react";
+import React, { useCallback, useEffect, useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { images } from "@/constants/images";
 import { icons } from "@/constants/icons";
+import * as WebBrowser from "expo-web-browser";
+import * as AuthSession from "expo-auth-session";
+import { useSSO } from "@clerk/clerk-expo";
+
+export const useWarmUpBrowser = () => {
+  useEffect(() => {
+    // Preloads the browser for Android devices to reduce authentication load time
+    // See: https://docs.expo.dev/guides/authentication/#improving-user-experience
+    void WebBrowser.warmUpAsync();
+    return () => {
+      // Cleanup: closes browser when component unmounts
+      void WebBrowser.coolDownAsync();
+    };
+  }, []);
+};
+
+// Handle any pending authentication sessions
+WebBrowser.maybeCompleteAuthSession();
 
 export default function Page() {
   const { signIn, setActive, isLoaded } = useSignIn();
@@ -26,6 +44,39 @@ export default function Page() {
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  useWarmUpBrowser();
+
+  // Use the `useSSO()` hook to access the `startSSOFlow()` method
+  const { startSSOFlow } = useSSO();
+
+  const onPress = useCallback(async () => {
+    try {
+      // Start the authentication process by calling `startSSOFlow()`
+      const { createdSessionId, setActive, signIn, signUp } =
+        await startSSOFlow({
+          strategy: "oauth_google",
+          // For web, defaults to current path
+          // For native, you must pass a scheme, like AuthSession.makeRedirectUri({ scheme, path })
+          // For more info, see https://docs.expo.dev/versions/latest/sdk/auth-session/#authsessionmakeredirecturioptions
+          redirectUrl: AuthSession.makeRedirectUri(),
+        });
+
+      // If sign in was successful, set the active session
+      if (createdSessionId) {
+        setActive!({ session: createdSessionId });
+      } else {
+        // If there is no `createdSessionId`,
+        // there are missing requirements, such as MFA
+        // Use the `signIn` or `signUp` returned from `startSSOFlow`
+        // to handle next steps
+      }
+    } catch (err) {
+      // See https://clerk.com/docs/custom-flows/error-handling
+      // for more info on error handling
+      console.error(JSON.stringify(err, null, 2));
+    }
+  }, []);
 
   // Handle the submission of the sign-in form
   const onSignInPress = async () => {
@@ -152,23 +203,19 @@ export default function Page() {
             </View>
 
             {/* Social Buttons */}
-            <View className="flex-row item-center gap-5  justify-center space-x-6 mb-6">
-              <TouchableOpacity className="p-3 bg-white rounded-full shadow">
-                {/*<Ionicons name="logo-google" size={40} color="#000000" />*/}
+            <View className="flex-row justify-center mb-6">
+              <TouchableOpacity
+                className="flex-row items-center bg-white gap-5 px-5 py-3 rounded-lg shadow space-x-3"
+                onPress={onPress}
+              >
                 <Image
                   source={icons.google}
-                  className="w-12 h-12"
+                  className="w-6 h-6"
                   resizeMode="contain"
                 />
-              </TouchableOpacity>
-              <TouchableOpacity className="p-3 bg-white rounded-full shadow">
-                {/*<Ionicons name="logo-facebook" size={40} color="#000000" />*/}
-
-                <Image
-                  source={icons.facebook}
-                  className="w-12 h-12"
-                  resizeMode="contain"
-                />
+                <Text className="text-base text-black font-medium">
+                  Continue with Google
+                </Text>
               </TouchableOpacity>
             </View>
 

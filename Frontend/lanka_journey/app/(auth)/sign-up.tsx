@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useCallback, useEffect } from "react";
 import {
   Text,
   TextInput,
@@ -10,15 +10,35 @@ import {
   Pressable,
   Image,
   ScrollView,
+  Alert,
 } from "react-native";
 import { useSignUp } from "@clerk/clerk-expo";
-import { Link, useRouter } from "expo-router";
+import { useRouter } from "expo-router";
 import { images } from "@/constants/images";
 import { Ionicons } from "@expo/vector-icons";
 import { icons } from "@/constants/icons";
+import * as WebBrowser from "expo-web-browser";
+import * as AuthSession from "expo-auth-session";
+import { useSSO } from "@clerk/clerk-expo";
+
+export const useWarmUpBrowser = () => {
+  useEffect(() => {
+    // Preloads the browser for Android devices to reduce authentication load time
+    // See: https://docs.expo.dev/guides/authentication/#improving-user-experience
+    void WebBrowser.warmUpAsync();
+    return () => {
+      // Cleanup: closes browser when component unmounts
+      void WebBrowser.coolDownAsync();
+    };
+  }, []);
+};
+
+// Handle any pending authentication sessions
+WebBrowser.maybeCompleteAuthSession();
 
 export default function SignUpScreen() {
   const { isLoaded, signUp, setActive } = useSignUp();
+
   const router = useRouter();
   const [agree, setAgree] = useState(false);
 
@@ -34,6 +54,71 @@ export default function SignUpScreen() {
   const [code, setCode] = useState("");
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
+
+  // const onGooglePress = useCallback(async () => {
+  //   try {
+  //     const { createdSessionId, setActive } = await startGoogleOAuthFlow();
+  //
+  //     if (createdSessionId) {
+  //       if (setActive) {
+  //         await setActive({ session: createdSessionId });
+  //       }
+  //       router.replace("/");
+  //     }
+  //   } catch (err) {
+  //     console.error("OAuth error", err);
+  //     Alert.alert("Error", "Something went wrong during Google sign up");
+  //   }
+  // }, [startGoogleOAuthFlow]);
+  //
+  // const onFacebookPress = useCallback(async () => {
+  //   try {
+  //     const { createdSessionId, setActive } = await startFacebookOAuthFlow();
+  //
+  //     if (createdSessionId) {
+  //       if (setActive) {
+  //         await setActive({ session: createdSessionId });
+  //       }
+  //       router.replace("/");
+  //     }
+  //   } catch (err) {
+  //     console.error("OAuth error", err);
+  //     Alert.alert("Error", "Something went wrong during Facebook sign up");
+  //   }
+  // }, [startFacebookOAuthFlow]);
+
+  useWarmUpBrowser();
+
+  // Use the `useSSO()` hook to access the `startSSOFlow()` method
+  const { startSSOFlow } = useSSO();
+
+  const onPress = useCallback(async () => {
+    try {
+      // Start the authentication process by calling `startSSOFlow()`
+      const { createdSessionId, setActive, signIn, signUp } =
+        await startSSOFlow({
+          strategy: "oauth_google",
+          // For web, defaults to current path
+          // For native, you must pass a scheme, like AuthSession.makeRedirectUri({ scheme, path })
+          // For more info, see https://docs.expo.dev/versions/latest/sdk/auth-session/#authsessionmakeredirecturioptions
+          redirectUrl: AuthSession.makeRedirectUri(),
+        });
+
+      // If sign in was successful, set the active session
+      if (createdSessionId) {
+        setActive!({ session: createdSessionId });
+      } else {
+        // If there is no `createdSessionId`,
+        // there are missing requirements, such as MFA
+        // Use the `signIn` or `signUp` returned from `startSSOFlow`
+        // to handle next steps
+      }
+    } catch (err) {
+      // See https://clerk.com/docs/custom-flows/error-handling
+      // for more info on error handling
+      console.error(JSON.stringify(err, null, 2));
+    }
+  }, []);
 
   // Handle submission of sign-up form
   const onSignUpPress = async () => {
@@ -95,7 +180,7 @@ export default function SignUpScreen() {
       // and redirect the user
       if (signUpAttempt.status === "complete") {
         await setActive({ session: signUpAttempt.createdSessionId });
-        router.replace("/(tabs)");
+        router.replace("/");
       } else {
         // If the status is not complete, check why. User may need to
         // complete further steps.
@@ -237,7 +322,6 @@ export default function SignUpScreen() {
               autoCapitalize="none"
               className="border border-gray-300 rounded-md px-4 py-3 mb-4 text-gray-800"
               placeholderTextColor="#999"
-              required
             />
 
             {/* Email */}
@@ -308,21 +392,20 @@ export default function SignUpScreen() {
               <View className="h-px bg-gray-300 flex-1" />
             </View>
 
-            {/* Social Sign Up (placeholder) */}
-            <View className="flex-row gap-5 justify-center space-x-6 mb-6">
-              <TouchableOpacity className="p-3 bg-white rounded-full shadow">
+            {/* Social Sign Up */}
+            <View className="flex-row justify-center mb-6">
+              <TouchableOpacity
+                className="flex-row items-center bg-white gap-5 px-5 py-3 rounded-lg shadow space-x-3"
+                onPress={onPress}
+              >
                 <Image
                   source={icons.google}
-                  className="w-10 h-10"
+                  className="w-6 h-6"
                   resizeMode="contain"
                 />
-              </TouchableOpacity>
-              <TouchableOpacity className="p-3 bg-white rounded-full shadow">
-                <Image
-                  source={icons.facebook}
-                  className="w-10 h-10"
-                  resizeMode="contain"
-                />
+                <Text className="text-base text-black font-medium">
+                  Continue with Google
+                </Text>
               </TouchableOpacity>
             </View>
 

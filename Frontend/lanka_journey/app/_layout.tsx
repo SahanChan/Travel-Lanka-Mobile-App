@@ -1,8 +1,9 @@
 import { Redirect, Stack } from "expo-router";
 import "./global.css";
 import { StatusBar } from "react-native";
-import { ClerkProvider, useAuth } from "@clerk/clerk-expo";
+import { ClerkProvider, useAuth, useClerk } from "@clerk/clerk-expo";
 import { tokenCache } from "@clerk/clerk-expo/token-cache";
+import * as Linking from "expo-linking";
 
 // This layout determines the root navigation structure
 function RootLayoutNav() {
@@ -14,9 +15,13 @@ function RootLayoutNav() {
   // If user is not signed in, redirect to auth flow
   if (!isSignedIn) {
     return (
-      <Stack>
-        <Stack.Screen name="(auth)" options={{ headerShown: false }} />
-      </Stack>
+      <>
+        <StatusBar hidden={true} />
+
+        <Stack>
+          <Stack.Screen name="(auth)" options={{ headerShown: false }} />
+        </Stack>
+      </>
     );
   }
 

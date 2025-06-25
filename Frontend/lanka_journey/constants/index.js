@@ -1,5 +1,6 @@
 import { icons } from "./icons";
 import { images } from "./images";
+import { Ionicons } from "@expo/vector-icons";
 
 const categories = [
   { label: "Hotels", icon: icons.hotels },
@@ -86,4 +87,29 @@ const topRestaurants = [
   },
 ];
 
-export { topPlaces, categories, topHotels, topActivities, topRestaurants };
+const settingsOptions = [
+  {
+    label: "Notifications",
+    icon: <Ionicons name="notifications-outline" size={20} />,
+  },
+  {
+    label: "Language",
+    icon: <Ionicons name="globe-outline" size={20} />,
+  },
+  {
+    label: "Currency",
+    icon: <Ionicons name="cash-outline" size={20} />,
+  },
+];
+
+const legalLinks = ["Privacy Policy", "Terms and conditions"];
+
+export {
+  topPlaces,
+  categories,
+  topHotels,
+  topActivities,
+  topRestaurants,
+  settingsOptions,
+  legalLinks,
+};
