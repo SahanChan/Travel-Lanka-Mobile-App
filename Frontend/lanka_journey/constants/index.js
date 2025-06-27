@@ -32,19 +32,19 @@ const topPlaces = [
 
 const topHotels = [
   {
-    id: "1",
+    id: "4",
     image: images.acresHotel,
     title: "Acres Hotel",
     location: "Bandarawela, Sri Lanka",
   },
   {
-    id: "2",
+    id: "5",
     image: images.hideElla,
     title: "Hide Ella Hotel",
     location: "Ella, Sri Lanka",
   },
   {
-    id: "3",
+    id: "6",
     image: images.ravanaHeights,
     title: "Ravana Heights",
     location: "Ella, Sri Lanka",
@@ -53,13 +53,13 @@ const topHotels = [
 
 const topActivities = [
   {
-    id: "1",
+    id: "7",
     image: images.tuktukAdventures,
     title: "Tuktuk Adventures",
     location: "Ella, Sri Lanka",
   },
   {
-    id: "2",
+    id: "8",
     image: images.flyingRavana,
     title: "Flying Ravana Zipline",
     location: "Ella, Sri Lanka",
@@ -68,19 +68,19 @@ const topActivities = [
 
 const topRestaurants = [
   {
-    id: "1",
+    id: "9",
     image: images.greenDoorCafe,
     title: "Green Door Cafe",
     location: "Ella, Sri Lanka",
   },
   {
-    id: "2",
+    id: "10",
     image: images.gardenView,
     title: "Garden View Restaurant",
     location: "Ella, Sri Lanka",
   },
   {
-    id: "3",
+    id: "11",
     image: images.mateyHut,
     title: "Matey Hut",
     location: "Ella, Sri Lanka",

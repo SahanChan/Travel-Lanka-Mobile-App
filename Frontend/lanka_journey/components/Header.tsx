@@ -5,10 +5,17 @@ import { images } from "@/constants/images";
 import { Ionicons } from "@expo/vector-icons";
 import SearchBar from "@/components/SearchBar";
 import { useUser } from "@clerk/clerk-expo";
+import { router } from "expo-router";
 
-const Header = () => {
+interface HeaderProps {
+  searchQuery: string;
+  setSearchQuery: (text: string) => void;
+  onSearchPress: () => void;
+}
+
+const Header = ({ searchQuery, setSearchQuery, onSearchPress }: HeaderProps) => {
   const insets = useSafeAreaInsets();
-  const [searchQuery, setSearchQuery] = useState("");
+
   const { user } = useUser();
 
   const handleSearch = (text: string) => {
@@ -44,8 +51,8 @@ const Header = () => {
         <SearchBar
           placeholder="Search Sri Lanka"
           value={searchQuery}
-          onPress={() => {}}
-          onChangeText={handleSearch}
+          onPress={onSearchPress}
+          onChangeText={setSearchQuery}
         />
       </View>
     </View>

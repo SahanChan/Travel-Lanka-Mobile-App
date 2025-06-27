@@ -15,12 +15,6 @@ const SearchBar = ({ onPress, placeholder, value, onChangeText }: Props) => {
     <View className={"flex-row items-center bg-accent rounded-md px-2"}>
       <Ionicons name="search" size={24} />
 
-      {/*<Image*/}
-      {/*  source={}*/}
-      {/*  className={"size-5"}*/}
-      {/*  resizeMode={"contain"}*/}
-      {/*  tintColor={"#ab8bff"}*/}
-      {/*/>*/}
       <TextInput
         onPress={onPress}
         placeholder={placeholder}

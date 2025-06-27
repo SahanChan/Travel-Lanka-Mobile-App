@@ -32,6 +32,7 @@ function RootLayoutNav() {
       <Stack>
         <Stack.Screen name="(tabs)" options={{ headerShown: false }} />
         <Stack.Screen name="trips/[id]" options={{ headerShown: false }} />
+        <Stack.Screen name="locations" options={{ headerShown: false }} />
       </Stack>
     </>
   );

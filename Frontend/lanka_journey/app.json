@@ -9,14 +9,20 @@
     "userInterfaceStyle": "automatic",
     "newArchEnabled": true,
     "ios": {
-      "supportsTablet": true
+      "supportsTablet": true,
+      "config": {
+        "googleMapsApiKey": "AIzaSyCGbrqsLRRlCWMk3eicSyze2siTkXweB_A"
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo.png",
         "backgroundColor": "#ffffff"
       },
-      "edgeToEdgeEnabled": true
+      "edgeToEdgeEnabled": true,
+      "package": "com.sahanchan.lankajourney",
+      "googleMapsApiKey": "AIzaSyCGbrqsLRRlCWMk3eicSyze2siTkXweB_A"
+
     },
     "web": {
       "bundler": "metro",
