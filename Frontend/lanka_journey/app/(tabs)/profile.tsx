@@ -12,6 +12,7 @@ import { Ionicons } from "@expo/vector-icons";
 import { useUser } from "@clerk/clerk-expo";
 import { legalLinks, settingsOptions } from "@/constants";
 import { SignOutButton } from "@/components/SignOutButton";
+import LocationText from "@/components/LocationText";
 
 const Profile = () => {
   const { user } = useUser();
@@ -31,7 +32,7 @@ const Profile = () => {
           <View className="flex-row justify-between mx-2 my-4 items-center">
             <View className=" flex-row items-center space-x-3 ">
               <Image
-                source={images.profileImage}
+                source={{ uri: user?.imageUrl }}
                 className="w-12 h-12 rounded-full"
               />
               <View className="ml-2">
@@ -40,9 +41,7 @@ const Profile = () => {
                     user?.username ||
                     user?.emailAddresses[0].emailAddress}
                 </Text>
-                <Text className="text-black text-xs">
-                  📍 Moratuwa, Sri Lanka
-                </Text>
+                <LocationText />
               </View>
             </View>
           </View>

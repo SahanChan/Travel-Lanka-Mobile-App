@@ -3,8 +3,11 @@ import React from "react";
 import { Tabs } from "expo-router";
 import CreateTripButton from "@/components/CreateTripButton";
 import TabBarIcon from "@/components/TabBarIcon";
+import { useSafeAreaInsets } from "react-native-safe-area-context";
 
 const TabsLayout = () => {
+  const insets = useSafeAreaInsets();
+
   return (
     <Tabs
       screenOptions={{
@@ -13,8 +16,8 @@ const TabsLayout = () => {
         tabBarActiveTintColor: "#ffc600",
         tabBarStyle: {
           position: "absolute",
-          bottom: 27,
-          height: 90,
+          bottom: 0,
+          height: 90 + insets.bottom,
           left: 16,
           right: 16,
           backgroundColor: "#eeeeee",
@@ -23,6 +26,7 @@ const TabsLayout = () => {
           alignItems: "center",
           justifyContent: "center",
           paddingTop: 20,
+          paddingBottom: insets.bottom,
         },
       }}
     >
@@ -63,18 +67,22 @@ const TabsLayout = () => {
           title: "Add",
           headerShown: false,
 
-          tabBarButton: (props) => (
-            <TouchableOpacity
-              {...(props as TouchableOpacityProps)}
-              style={{
-                top: -20,
-                alignItems: "center",
-                justifyContent: "center",
-              }}
-            >
-              <CreateTripButton iconName="add" />
-            </TouchableOpacity>
-          ),
+          tabBarButton: (props) => {
+            const insets = useSafeAreaInsets();
+            return (
+              <TouchableOpacity
+                {...(props as TouchableOpacityProps)}
+                style={{
+                  top: -20,
+                  alignItems: "center",
+                  justifyContent: "center",
+                  marginBottom: insets.bottom / 2, // Adjust position to account for safe area
+                }}
+              >
+                <CreateTripButton iconName="add" />
+              </TouchableOpacity>
+            );
+          },
         }}
       />
 

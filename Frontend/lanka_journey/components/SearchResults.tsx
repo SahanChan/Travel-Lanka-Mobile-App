@@ -2,6 +2,13 @@ import { View, Text } from "react-native";
 import React from "react";
 import HomeScreenCard from "@/components/HomeScreenCard";
 import { images } from "@/constants/images";
+import SearchResultsCard from "@/components/SearchResultsCard";
+
+interface Photo {
+  name: string;
+  widthPx?: number;
+  heightPx?: number;
+}
 
 interface SearchResultsProps {
   results: any[];
@@ -9,7 +16,7 @@ interface SearchResultsProps {
 
 const SearchResults = ({ results }: SearchResultsProps) => {
   // Function to convert photo reference to a valid image source
-  const getPhotoSource = (photo) => {
+  const getPhotoSource = (photo: Photo | undefined) => {
     if (!photo || !photo.name) {
       // Return a default image if no photo is available
       return images.ellaRock;
@@ -34,7 +41,7 @@ const SearchResults = ({ results }: SearchResultsProps) => {
       </Text>
       {results && results.length > 0 ? (
         results.map((result, index) => (
-          <HomeScreenCard
+          <SearchResultsCard
             key={index}
             image={
               result.photos && result.photos.length > 0

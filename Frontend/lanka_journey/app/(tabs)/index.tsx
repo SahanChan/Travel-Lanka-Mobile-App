@@ -24,6 +24,7 @@ import { SignOutButton } from "@/components/SignOutButton";
 import { Link } from "expo-router";
 import SearchResults from "@/components/SearchResults";
 import axios from "axios";
+import HomePageFlatList from "@/components/HomePageFlatList";
 
 export default function Index() {
   const [searchQuery, setSearchQuery] = useState("");
@@ -53,7 +54,7 @@ export default function Index() {
         "https://places.googleapis.com/v1/places:searchText",
         {
           textQuery: searchQuery,
-          locationBias: {
+          locationRestriction: {
             rectangle: {
               low: {
                 latitude: 5.918, // Southernmost point
@@ -135,6 +136,10 @@ export default function Index() {
                       key={index}
                       className="items-center justify-center bg-secondary-100 w-24 h-24 rounded-xl shadow-sm"
                       activeOpacity={0.8}
+                      onPress={() => {
+                        setSearchQuery(cat.label);
+                        fetchPlaces();
+                      }}
                     >
                       <Image
                         source={cat.icon}
@@ -148,134 +153,10 @@ export default function Index() {
                   ))}
                 </View>
               </View>
-              <View className=" mt-6">
-                <View className="flex-row justify-between items-center px-5">
-                  <Text className="text-xl font-bold text-gray-800 mb-4">
-                    Top Places
-                  </Text>
-                  <TouchableOpacity>
-                    <Text className="text-sm font-semibold text-muted mb-4">
-                      See more
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-                <View>
-                  <FlatList
-                    data={topPlaces}
-                    horizontal
-                    keyExtractor={(item) => item.id}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{
-                      paddingLeft: 20, // space before the first card
-                      paddingRight: 10, // optional: spacing at the end
-                    }}
-                    renderItem={({ item }) => (
-                      <HomeScreenCard
-                        {...item}
-                        image={item.image}
-                        title={item.title}
-                        location={item.location}
-                      />
-                    )}
-                  />
-                </View>
-              </View>
-              <View className=" mt-6">
-                <View className="flex-row justify-between items-center px-5">
-                  <Text className="text-xl font-bold text-gray-800 mb-4">
-                    Top Hotels
-                  </Text>
-                  <TouchableOpacity>
-                    <Text className="text-sm font-semibold text-muted mb-4">
-                      See more
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-                <View>
-                  <FlatList
-                    data={topHotels}
-                    horizontal
-                    keyExtractor={(item) => item.id}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{
-                      paddingLeft: 20, // space before the first card
-                      paddingRight: 10, // optional: spacing at the end
-                    }}
-                    renderItem={({ item }) => (
-                      <HomeScreenCard
-                        {...item}
-                        image={item.image}
-                        title={item.title}
-                        location={item.location}
-                      />
-                    )}
-                  />
-                </View>
-              </View>
-              <View className=" mt-6">
-                <View className="flex-row justify-between items-center px-5">
-                  <Text className="text-xl font-bold text-gray-800 mb-4">
-                    Top Activities
-                  </Text>
-                  <TouchableOpacity>
-                    <Text className="text-sm font-semibold text-muted mb-4">
-                      See more
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-                <View>
-                  <FlatList
-                    data={topActivities}
-                    horizontal
-                    keyExtractor={(item) => item.id}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{
-                      paddingLeft: 20, // space before the first card
-                      paddingRight: 10, // optional: spacing at the end
-                    }}
-                    renderItem={({ item }) => (
-                      <HomeScreenCard
-                        {...item}
-                        image={item.image}
-                        title={item.title}
-                        location={item.location}
-                      />
-                    )}
-                  />
-                </View>
-              </View>
-              <View className=" mt-6">
-                <View className="flex-row justify-between items-center px-5">
-                  <Text className="text-xl font-bold text-gray-800 mb-4">
-                    Top Restaurants
-                  </Text>
-                  <TouchableOpacity>
-                    <Text className="text-sm font-semibold text-muted mb-4">
-                      See more
-                    </Text>
-                  </TouchableOpacity>
-                </View>
-                <View>
-                  <FlatList
-                    data={topRestaurants}
-                    horizontal
-                    keyExtractor={(item) => item.id}
-                    showsHorizontalScrollIndicator={false}
-                    contentContainerStyle={{
-                      paddingLeft: 20, // space before the first card
-                      paddingRight: 10, // optional: spacing at the end
-                    }}
-                    renderItem={({ item }) => (
-                      <HomeScreenCard
-                        {...item}
-                        image={item.image}
-                        title={item.title}
-                        location={item.location}
-                      />
-                    )}
-                  />
-                </View>
-              </View>
+              <HomePageFlatList name="Top Places" data={topPlaces} />
+              <HomePageFlatList name="Top Hotels" data={topHotels} />
+              <HomePageFlatList name="Top Activities" data={topActivities} />
+              <HomePageFlatList name="Top Restaurants" data={topRestaurants} />
             </View>
           </>
         )}

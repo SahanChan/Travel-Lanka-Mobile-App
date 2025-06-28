@@ -12,78 +12,169 @@ const categories = [
 const topPlaces = [
   {
     id: "1",
-    image: images.littleAdamsViewPoint,
-    title: "Little Adams View Point",
-    location: "Ella, Sri Lanka",
+    title: "Little Adam's Peak",
   },
-  {
-    id: "2",
-    image: images.kudaRavana,
-    title: "Kuda Ravana Waterfall",
-    location: "Ella, Sri Lanka",
-  },
+
   {
     id: "3",
-    image: images.ellaRockViewPoint,
-    title: "Ella Rock View Point",
-    location: "Ella, Sri Lanka",
+    title: "Lipton's Seat",
+  },
+  {
+    id: "4",
+    title: "World's End",
+  },
+  {
+    id: "5",
+    title: "Pidurangala Rock",
+  },
+  {
+    id: "6",
+    title: "Sigiriya Rock Fortress",
+  },
+  {
+    id: "7",
+    title: "Ambuluwawa Tower",
+  },
+  {
+    id: "8",
+    title: "Dondra Head Lighthouse Viewpoint",
+  },
+  {
+    id: "9",
+    title: "Knuckles Mountain Range Viewpoint",
+  },
+  {
+    id: "10",
+    title: "Kudawa Viewpoint – Sinharaja Forest Edge",
   },
 ];
 
 const topHotels = [
   {
+    id: "1",
+    title: "Ceylon Tea Trails",
+  },
+  {
+    id: "2",
+    title: "Cape Weligama",
+  },
+  {
+    id: "3",
+    title: "Wild Coast Tented Lodge",
+  },
+  {
     id: "4",
-    image: images.acresHotel,
-    title: "Acres Hotel",
-    location: "Bandarawela, Sri Lanka",
+    title: "Amangalla",
   },
   {
     id: "5",
-    image: images.hideElla,
-    title: "Hide Ella Hotel",
-    location: "Ella, Sri Lanka",
+    title: "Heritance Kandalama",
   },
   {
     id: "6",
-    image: images.ravanaHeights,
-    title: "Ravana Heights",
-    location: "Ella, Sri Lanka",
+    title: "Ulagalla by Uga Escapes",
+  },
+  {
+    id: "7",
+    title: "Amanwella",
+  },
+  {
+    id: "8",
+    title: "The Fortress Resort & Spa",
+  },
+  {
+    id: "9",
+    title: "Jetwing Lighthouse",
+  },
+  {
+    id: "10",
+    title: "Heritance Tea Factory",
   },
 ];
 
 const topActivities = [
   {
+    id: "1",
+    title: "Turtle Watching in Rekawa",
+  },
+  {
+    id: "2",
+    title: "Safari at Yala National Park",
+  },
+  {
+    id: "3",
+    title: "Whale Watching in Mirissa",
+  },
+  {
+    id: "4",
+    title: "Surfing Lessons in Arugam Bay",
+  },
+  {
+    id: "5",
+    title: "Train Ride from Kandy to Ella",
+  },
+  {
+    id: "6",
+    title: "Scuba Diving in Hikkaduwa",
+  },
+  {
     id: "7",
-    image: images.tuktukAdventures,
-    title: "Tuktuk Adventures",
-    location: "Ella, Sri Lanka",
+    title: "Helping at Dogs of Ella Sanctuary",
   },
   {
     id: "8",
-    image: images.flyingRavana,
-    title: "Flying Ravana Zipline",
-    location: "Ella, Sri Lanka",
+    title: "White Water Rafting in Kitulgala",
+  },
+  {
+    id: "9",
+    title: "Hot Air Ballooning in Dambulla",
+  },
+  {
+    id: "10",
+    title: "Ayurvedic Spa and Healing Rituals",
   },
 ];
 
 const topRestaurants = [
   {
+    id: "1",
+    title: "Ministry of Crab",
+  },
+  {
+    id: "2",
+    title: "Nuga Gama",
+  },
+  {
+    id: "3",
+    title: "Upali’s by Nawaloka",
+  },
+  {
+    id: "4",
+    title: "Mr Kottu",
+  },
+  {
+    id: "5",
+    title: "Perera & Sons",
+  },
+  {
+    id: "6",
+    title: "The Gallery Café",
+  },
+  {
+    id: "7",
+    title: "Ceylon King Kashapa Restaurant",
+  },
+  {
+    id: "8",
+    title: "Metta’s Homecooking",
+  },
+  {
     id: "9",
-    image: images.greenDoorCafe,
-    title: "Green Door Cafe",
-    location: "Ella, Sri Lanka",
+    title: "Duni’s Hoppers",
   },
   {
     id: "10",
-    image: images.gardenView,
-    title: "Garden View Restaurant",
-    location: "Ella, Sri Lanka",
-  },
-  {
-    id: "11",
-    image: images.mateyHut,
-    title: "Matey Hut",
-    location: "Ella, Sri Lanka",
+    title: "Luuma",
   },
 ];
 

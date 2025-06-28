@@ -6,6 +6,7 @@ import { Ionicons } from "@expo/vector-icons";
 import SearchBar from "@/components/SearchBar";
 import { useUser } from "@clerk/clerk-expo";
 import { router } from "expo-router";
+import LocationText from "@/components/LocationText";
 
 interface HeaderProps {
   searchQuery: string;
@@ -13,7 +14,11 @@ interface HeaderProps {
   onSearchPress: () => void;
 }
 
-const Header = ({ searchQuery, setSearchQuery, onSearchPress }: HeaderProps) => {
+const Header = ({
+  searchQuery,
+  setSearchQuery,
+  onSearchPress,
+}: HeaderProps) => {
   const insets = useSafeAreaInsets();
 
   const { user } = useUser();
@@ -30,7 +35,7 @@ const Header = ({ searchQuery, setSearchQuery, onSearchPress }: HeaderProps) => 
       <View className="flex-row justify-between items-center">
         <View className=" flex-row items-center space-x-3 ">
           <Image
-            source={images.profileImage}
+            source={{ uri: user?.imageUrl }}
             className="w-12 h-12 rounded-full"
           />
           <View className="ml-2">
@@ -40,7 +45,7 @@ const Header = ({ searchQuery, setSearchQuery, onSearchPress }: HeaderProps) => 
                 user?.username ||
                 user?.emailAddresses[0].emailAddress}
             </Text>
-            <Text className="text-black text-xs">📍 Moratuwa, Sri Lanka</Text>
+            <LocationText />
           </View>
         </View>
         <TouchableOpacity>
