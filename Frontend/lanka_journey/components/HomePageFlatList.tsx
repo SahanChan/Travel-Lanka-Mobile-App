@@ -1,4 +1,10 @@
-import { View, Text, TouchableOpacity, FlatList, ActivityIndicator } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  FlatList,
+  ActivityIndicator,
+} from "react-native";
 import React, { useState, useEffect } from "react";
 import HomeScreenCard from "@/components/HomeScreenCard";
 import axios from "axios";
@@ -43,7 +49,9 @@ const HomePageFlatList = ({ name, data }: HomePageFlatListProps) => {
       },
     };
   };
-  const [placesWithGoogleData, setPlacesWithGoogleData] = useState<PlaceData[]>([]);
+  const [placesWithGoogleData, setPlacesWithGoogleData] = useState<PlaceData[]>(
+    [],
+  );
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState("");
 
@@ -87,21 +95,24 @@ const HomePageFlatList = ({ name, data }: HomePageFlatListProps) => {
                 {
                   headers: {
                     "Content-Type": "application/json",
-                    "X-Goog-Api-Key": process.env.EXPO_PUBLIC_GOOGLE_MAPS_SDK_KEY,
+                    "X-Goog-Api-Key":
+                      process.env.EXPO_PUBLIC_GOOGLE_MAPS_SDK_KEY,
                     "X-Goog-FieldMask":
                       "places.id,places.displayName,places.shortFormattedAddress,places.photos",
                   },
-                }
+                },
               );
 
-              if (response.data && response.data.places && response.data.places.length > 0) {
+              if (
+                response.data &&
+                response.data.places &&
+                response.data.places.length > 0
+              ) {
                 const googlePlace = response.data.places[0];
-                const photoSource = googlePlace.photos && googlePlace.photos.length > 0 
-                  ? getPhotoSource(googlePlace.photos[0]) 
-                  : null;
-
-                // Log the Google Place ID for debugging
-                console.log(`Google Place ID for ${place.title}:`, googlePlace.id);
+                const photoSource =
+                  googlePlace.photos && googlePlace.photos.length > 0
+                    ? getPhotoSource(googlePlace.photos[0])
+                    : null;
 
                 return {
                   id: googlePlace.id || place.id,
@@ -115,7 +126,7 @@ const HomePageFlatList = ({ name, data }: HomePageFlatListProps) => {
               console.error(`Error fetching data for ${place.title}:`, err);
               return place;
             }
-          })
+          }),
         );
 
         setPlacesWithGoogleData(updatedPlaces);

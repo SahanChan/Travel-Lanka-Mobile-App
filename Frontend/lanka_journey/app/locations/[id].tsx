@@ -17,6 +17,9 @@ import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import ReviewItem from "@/components/ReviewItem";
+import CustomBottomSheet, { CustomBottomSheetRef } from "@/components/CustomBottomSheet";
+import { useSession, useUser } from "@clerk/clerk-expo";
+import { createClient } from "@supabase/supabase-js";
 
 // Define interfaces for the Google Places API response
 interface DisplayName {
@@ -85,6 +88,79 @@ const LocationDetails = () => {
 
   const [showAll, setShowAll] = useState(false);
   const fadeAnim = useRef(new Animated.Value(0)).current;
+
+  // Bottom sheet reference
+  const bottomSheetRef = useRef<CustomBottomSheetRef>(null);
+
+  // Collections state
+  const [collections, setCollections] = useState<any[]>([]);
+  const [collectionsLoading, setCollectionsLoading] = useState(false);
+  const [savingLocation, setSavingLocation] = useState(false);
+
+  // The `useUser()` hook is used to ensure that Clerk has loaded data about the signed in user
+  const { user } = useUser();
+  // The `useSession()` hook is used to get the Clerk session object
+  const { session } = useSession();
+
+  // Create Supabase client with Clerk authentication
+  function createClerkSupabaseClient() {
+    return createClient(
+      process.env.EXPO_PUBLIC_SUPABASE_URL!,
+      process.env.EXPO_PUBLIC_SUPABASE_ANON_KEY!,
+      {
+        async accessToken() {
+          return session?.getToken() ?? null;
+        },
+      },
+    );
+  }
+
+  const client = createClerkSupabaseClient();
+
+  // Function to load collections from Supabase
+  const loadCollections = async () => {
+    if (!user) return;
+
+    setCollectionsLoading(true);
+    const { data, error } = await client.from("collections").select();
+    if (!error) setCollections(data);
+    setCollectionsLoading(false);
+  };
+
+  // Function to save location to a collection
+  const saveLocationToCollection = async (collectionId: string) => {
+    if (!user || !placeDetails) return;
+
+    setSavingLocation(true);
+
+    const locationData = {
+      collection_id: collectionId,
+      place_id: id,
+      title: placeDetails?.displayName?.text || "Unknown Place",
+    };
+
+    const { data, error } = await client
+      .from("collection_locations")
+      .insert(locationData)
+      .select();
+
+    if (error) {
+      console.error("Error saving location to collection:", error);
+      // You could add error handling UI here
+    } else {
+      console.log("Location saved to collection successfully:", data);
+      // You could add success UI feedback here
+    }
+
+    setSavingLocation(false);
+    bottomSheetRef.current?.close();
+  };
+
+  // Function to handle bookmark button press
+  const handleBookmarkPress = () => {
+    loadCollections();
+    bottomSheetRef.current?.expand();
+  };
 
   // Function to fetch place details using the ID
   const fetchPlaceDetails = async () => {
@@ -162,6 +238,56 @@ const LocationDetails = () => {
 
   return (
     <View className="flex-1 bg-background">
+      {/* Collections Bottom Sheet */}
+      <CustomBottomSheet
+        ref={bottomSheetRef}
+        snapPoint="50%"
+      >
+        <View className="flex-1">
+          <Text className="text-xl font-bold mb-4">Save to Collection</Text>
+
+          {collectionsLoading ? (
+            <View className="items-center justify-center py-4">
+              <ActivityIndicator size="large" color="#0000ff" />
+              <Text className="text-gray-600 mt-2">Loading collections...</Text>
+            </View>
+          ) : collections.length === 0 ? (
+            <View className="items-center justify-center py-4">
+              <Text className="text-gray-600">No collections found</Text>
+              <TouchableOpacity 
+                onPress={() => {
+                  bottomSheetRef.current?.close();
+                  router.push("/(tabs)/saved");
+                }}
+                className="mt-2 bg-secondary py-2 px-4 rounded-lg"
+              >
+                <Text className="text-white font-semibold">Create Collection</Text>
+              </TouchableOpacity>
+            </View>
+          ) : (
+            <FlatList
+              data={collections}
+              keyExtractor={(item) => item.id.toString()}
+              renderItem={({ item }) => (
+                <TouchableOpacity
+                  onPress={() => saveLocationToCollection(item.id)}
+                  disabled={savingLocation}
+                  className="flex-row items-center p-3 border-b border-gray-200"
+                >
+                  <View className="w-10 h-10 bg-gray-200 rounded-full mr-3 items-center justify-center">
+                    <Ionicons name="folder" size={20} color="#666" />
+                  </View>
+                  <Text className="text-gray-800 flex-1">{item.name}</Text>
+                  {savingLocation && (
+                    <ActivityIndicator size="small" color="#0000ff" />
+                  )}
+                </TouchableOpacity>
+              )}
+            />
+          )}
+        </View>
+      </CustomBottomSheet>
+
       {/* Back Button */}
       <TouchableOpacity
         onPress={() => router.back()}
@@ -244,7 +370,7 @@ const LocationDetails = () => {
                   </View>
                   <TouchableOpacity
                     className="pr-4"
-                    onPress={() => setLoading(false)}
+                    onPress={handleBookmarkPress}
                   >
                     <Ionicons
                       name="bookmark-outline"
@@ -327,7 +453,7 @@ const LocationDetails = () => {
               </View>
               <TouchableOpacity
                 className="pr-4"
-                onPress={() => setLoading(false)}
+                onPress={handleBookmarkPress}
               >
                 <Ionicons name="bookmark-outline" size={22} color="#ffc600" />
               </TouchableOpacity>

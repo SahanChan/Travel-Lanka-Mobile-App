@@ -4,6 +4,7 @@ import { StatusBar } from "react-native";
 import { ClerkProvider, useAuth, useClerk } from "@clerk/clerk-expo";
 import { tokenCache } from "@clerk/clerk-expo/token-cache";
 import * as Linking from "expo-linking";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
 // This layout determines the root navigation structure
 function RootLayoutNav() {
@@ -40,11 +41,13 @@ function RootLayoutNav() {
 
 export default function RootLayout() {
   return (
-    <ClerkProvider
-      // publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY}
-      tokenCache={tokenCache}
-    >
-      <RootLayoutNav />
-    </ClerkProvider>
+    <GestureHandlerRootView style={{ flex: 1 }}>
+      <ClerkProvider
+        // publishableKey={process.env.EXPO_PUBLIC_CLERK_PUBLISHABLE_KEY}
+        tokenCache={tokenCache}
+      >
+        <RootLayoutNav />
+      </ClerkProvider>
+    </GestureHandlerRootView>
   );
 }

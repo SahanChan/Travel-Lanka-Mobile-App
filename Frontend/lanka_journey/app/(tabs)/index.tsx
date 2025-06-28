@@ -77,8 +77,6 @@ export default function Index() {
         },
       );
 
-      console.log("API Response:", JSON.stringify(response.data, null, 2));
-
       // Check if places array exists in the response
       if (response.data && response.data.places) {
         setSearchResults(response.data.places);
