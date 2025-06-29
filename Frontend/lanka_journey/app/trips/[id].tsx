@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams } from "expo-router";
+import { useLocalSearchParams, useFocusEffect } from "expo-router";
 import { useUser, useSession } from "@clerk/clerk-expo";
 import { createClient } from "@supabase/supabase-js";
 import CustomBottomSheet, {
@@ -43,6 +43,11 @@ interface DayData {
   day: number;
   date: Date;
   transport: string | null;
+  location?: {
+    place_id: string;
+    title: string;
+    image?: any;
+  } | null;
 }
 
 const TripDetails = () => {
@@ -84,7 +89,11 @@ const TripDetails = () => {
   // Format date for display
   const formatDate = (dateString: string): string => {
     if (!dateString) return "";
-    const date = new Date(dateString);
+    // Handle timestampz format (2025-06-30 00:00:00+00)
+    const dateStr = dateString.includes(" ")
+      ? dateString.split(" ")[0]
+      : dateString;
+    const date = new Date(dateStr);
     return date.toLocaleDateString("en-US", {
       year: "numeric",
       month: "short",
@@ -99,8 +108,14 @@ const TripDetails = () => {
   ): DayData[] => {
     if (!startDate || !endDate) return [];
 
-    const start = new Date(startDate);
-    const end = new Date(endDate);
+    // Handle timestampz format (2025-06-30 00:00:00+00)
+    const startStr = startDate.includes(" ")
+      ? startDate.split(" ")[0]
+      : startDate;
+    const endStr = endDate.includes(" ") ? endDate.split(" ")[0] : endDate;
+
+    const start = new Date(startStr);
+    const end = new Date(endStr);
 
     // Add one day to include the end date
     end.setDate(end.getDate() + 1);
@@ -124,6 +139,7 @@ const TripDetails = () => {
 
   // Load trip data
   const loadTripData = async () => {
+    console.log("im loading trip data");
     if (!user || !id) return;
 
     setLoading(true);
@@ -145,10 +161,71 @@ const TripDetails = () => {
         setTrip(data);
         // Generate days data from start and end dates
         const days = getDaysBetweenDates(data.start_date, data.end_date);
-        setDaysData(days);
+
+        // Fetch trip_locations data for this trip
+        const { data: locationsData, error: locationsError } = await client
+          .from("trip_locations")
+          .select("*")
+          .eq("trip_id", id);
+
+        if (locationsError) {
+          console.error("Error loading trip locations:", locationsError);
+        } else if (locationsData && locationsData.length > 0) {
+          // Map the locations data to the corresponding days
+          const updatedDays = await Promise.all(
+            days.map(async (day) => {
+              // Format the date to match the trip_date format in the database (YYYY-MM-DD)
+              const formattedDate = day.date.toISOString().split("T")[0];
+
+              // Find location for this day
+              const dayLocation = locationsData.find((loc) => {
+                // Extract date part from timestampz format (2025-06-30T00:00:00+00:00 or 2025-06-30 00:00:00+00)
+                let tripDatePart = "";
+                if (loc.trip_date) {
+                  // Handle both formats: with T separator or space separator
+                  tripDatePart = loc.trip_date.includes("T") 
+                    ? loc.trip_date.split("T")[0] 
+                    : loc.trip_date.split(" ")[0];
+                }
+                console.log("tripDatePart:", tripDatePart);
+                console.log("formattedDate:", formattedDate);
+
+                return tripDatePart === formattedDate;
+              });
+
+              if (dayLocation) {
+                let locationImage = null;
+
+                // Fetch image from Google Maps API if place_id exists
+                if (dayLocation.place_id) {
+                  locationImage = await fetchPlaceImage(dayLocation.place_id);
+                }
+
+                return {
+                  ...day,
+                  transport: dayLocation.location_transport || null,
+                  location: {
+                    place_id: dayLocation.place_id,
+                    title: dayLocation.title,
+                    image: locationImage,
+                  },
+                };
+              }
+
+              return day;
+            }),
+          );
+
+          setDaysData(updatedDays);
+        } else {
+          setDaysData(days);
+        }
       }
     } catch (error) {
       console.error("Error in loadTripData:", error);
+      setDaysData(
+        getDaysBetweenDates(trip?.start_date || "", trip?.end_date || ""),
+      );
     } finally {
       setLoading(false);
     }
@@ -160,6 +237,15 @@ const TripDetails = () => {
       loadTripData();
     }
   }, [user, id]);
+
+  // Reload trip data when screen comes into focus
+  useFocusEffect(
+    React.useCallback(() => {
+      if (user && id) {
+        loadTripData();
+      }
+    }, [user, id]),
+  );
 
   // Search debounce effect
   useEffect(() => {
@@ -175,13 +261,70 @@ const TripDetails = () => {
   }, [searchQuery]);
 
   // Handle transport selection
-  const handleTransportSelect = (transportId: string) => {
-    if (selectedDay !== null) {
-      setDaysData((prevDays) =>
-        prevDays.map((day) =>
-          day.day === selectedDay ? { ...day, transport: transportId } : day,
-        ),
-      );
+  const handleTransportSelect = async (transportId: string) => {
+    if (selectedDay !== null && trip) {
+      try {
+        // Update local state first
+        setDaysData((prevDays) =>
+          prevDays.map((day) =>
+            day.day === selectedDay ? { ...day, transport: transportId } : day,
+          ),
+        );
+
+        // Get the day data for the selected day
+        const dayData = daysData[selectedDay - 1];
+        const formattedDate = dayData.date.toISOString().split("T")[0];
+
+        // Check if there's already a record for this day
+        const { data: existingData, error: fetchError } = await client
+          .from("trip_locations")
+          .select("*")
+          .eq("trip_id", trip.id)
+          .eq("trip_date", formattedDate)
+          .maybeSingle();
+
+        if (fetchError) {
+          console.error("Error checking existing location:", fetchError);
+          return;
+        }
+
+        let result;
+
+        if (existingData) {
+          // Update existing record with new transport
+          result = await client
+            .from("trip_locations")
+            .update({
+              location_transport: transportId,
+            })
+            .eq("id", existingData.id);
+        } else if (dayData.location) {
+          // If we have location data but no record, create one
+          result = await client.from("trip_locations").insert({
+            trip_id: trip.id,
+            place_id: dayData.location.place_id,
+            title: dayData.location.title,
+            trip_date: formattedDate,
+            location_transport: transportId,
+          });
+        } else {
+          // If no location yet, create a record with just the transport
+          result = await client.from("trip_locations").insert({
+            trip_id: trip.id,
+            place_id: "",
+            title: "",
+            trip_date: formattedDate,
+            location_transport: transportId,
+          });
+        }
+
+        if (result.error) {
+          console.error("Error saving transport:", result.error);
+        }
+      } catch (error) {
+        console.error("Error in handleTransportSelect:", error);
+      }
+
       bottomSheetRef.current?.close();
     }
   };
@@ -343,12 +486,87 @@ const TripDetails = () => {
   };
 
   // Function to add attraction to trip day
-  const addAttractionToDay = (attraction: any) => {
-    // Here you would add the attraction to the day's data
-    // This would involve updating the daysData state and possibly saving to Supabase
-    console.log(
-      `Adding attraction ${attraction.displayName?.text || attraction.title} to day ${selectedDay}`,
-    );
+  const addAttractionToDay = async (attraction: any) => {
+    if (!selectedDay || !trip || selectedDay > daysData.length) {
+      console.error("Invalid day selected");
+      return;
+    }
+
+    try {
+      // Get the day data for the selected day
+      const dayData = daysData[selectedDay - 1];
+      const formattedDate = dayData.date.toISOString().split("T")[0];
+
+      // Get attraction details
+      const title =
+        attraction.displayName?.text || attraction.title || "Unknown Place";
+      const place_id = attraction.id || "";
+
+      // Fetch image for the attraction
+      const image = await fetchPlaceImage(place_id);
+
+      // Check if there's already a record for this day
+      const { data: existingData, error: fetchError } = await client
+        .from("trip_locations")
+        .select("*")
+        .eq("trip_id", trip.id)
+        .eq("trip_date", formattedDate)
+        .maybeSingle();
+
+      if (fetchError) {
+        console.error("Error checking existing location:", fetchError);
+        return;
+      }
+
+      let result;
+
+      if (existingData) {
+        // Update existing record
+        result = await client
+          .from("trip_locations")
+          .update({
+            place_id,
+            title,
+            location_transport:
+              existingData.location_transport || dayData.transport,
+          })
+          .eq("id", existingData.id);
+      } else {
+        // Insert new record
+        result = await client.from("trip_locations").insert({
+          trip_id: trip.id,
+          place_id,
+          title,
+          trip_date: formattedDate,
+          location_transport: dayData.transport,
+        });
+      }
+
+      if (result.error) {
+        console.error("Error saving attraction:", result.error);
+        return;
+      }
+
+      // Update local state
+      setDaysData((prevDays) =>
+        prevDays.map((day, index) =>
+          index === selectedDay - 1
+            ? {
+                ...day,
+                location: {
+                  place_id,
+                  title,
+                  image,
+                },
+              }
+            : day,
+        ),
+      );
+
+      console.log(`Added attraction ${title} to day ${selectedDay}`);
+    } catch (error) {
+      console.error("Error in addAttractionToDay:", error);
+    }
 
     // Close the bottom sheet after adding
     attractionsBottomSheetRef.current?.close();
@@ -406,15 +624,34 @@ const TripDetails = () => {
               })}
             </Text>
 
-            {/* Add New Attractions */}
+            {/* Location Card - Show image if location exists, otherwise show "Add New Attractions" */}
             <TouchableOpacity
-              className="bg-white rounded-xl p-5 items-center justify-center shadow-sm"
+              className="bg-white rounded-xl shadow-sm overflow-hidden"
               onPress={() => openAttractionsSelection(dayItem.day)}
             >
-              <Ionicons name="add" size={32} color="#888" />
-              <Text className="text-gray-500 mt-2 font-medium">
-                Add New Attractions
-              </Text>
+              {dayItem.location ? (
+                <View>
+                  <View className="relative">
+                    <Image
+                      source={dayItem.location.image || images.ellaRock}
+                      className="w-full h-40"
+                      resizeMode="cover"
+                    />
+                    <View className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-3">
+                      <Text className="text-white font-bold">
+                        {dayItem.location.title}
+                      </Text>
+                    </View>
+                  </View>
+                </View>
+              ) : (
+                <View className="p-5 items-center justify-center">
+                  <Ionicons name="add" size={32} color="#888" />
+                  <Text className="text-gray-500 mt-2 font-medium">
+                    Add New Attractions
+                  </Text>
+                </View>
+              )}
             </TouchableOpacity>
 
             {/* Transport Method */}
