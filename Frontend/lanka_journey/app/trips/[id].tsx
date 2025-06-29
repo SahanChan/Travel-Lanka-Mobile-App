@@ -10,7 +10,7 @@ import {
 } from "react-native";
 import React, { useState, useEffect, useRef } from "react";
 import { Ionicons } from "@expo/vector-icons";
-import { useLocalSearchParams, useFocusEffect } from "expo-router";
+import { useLocalSearchParams, useFocusEffect, useRouter } from "expo-router";
 import { useUser, useSession } from "@clerk/clerk-expo";
 import { createClient } from "@supabase/supabase-js";
 import CustomBottomSheet, {
@@ -19,16 +19,27 @@ import CustomBottomSheet, {
 import axios from "axios";
 import { images } from "@/constants/images";
 import SearchResults from "@/components/SearchResults";
+import { icons } from "@/constants/icons";
 
 // Define transport types
 const transportTypes = [
-  { id: "bus", name: "Bus", icon: "bus" },
-  { id: "train", name: "Train", icon: "train" },
-  { id: "tuktuk", name: "Tuk Tuk", icon: "car" },
-  { id: "car", name: "Car", icon: "car" },
-  { id: "motorcycle", name: "Motorcycle", icon: "bicycle" },
-  { id: "uber", name: "Uber", icon: "car" },
-  { id: "pickme", name: "PickMe", icon: "car" },
+  { id: "bus", name: "Bus", icon: "bus", iconType: "ionicon" },
+  { id: "train", name: "Train", icon: "train", iconType: "ionicon" },
+  { id: "tuktuk", name: "Tuk Tuk", icon: icons.tuttuk, iconType: "image" },
+  { id: "car", name: "Car", icon: "car", iconType: "ionicon" },
+  {
+    id: "motorcycle",
+    name: "Motorcycle",
+    icon: icons.motorcycle,
+    iconType: "image",
+  },
+  { id: "uber", name: "Uber", icon: icons.uber, iconType: "image" },
+  {
+    id: "pickme",
+    name: "PickMe",
+    icon: icons.pickme,
+    iconType: "image",
+  },
 ];
 
 interface Trip {
@@ -52,6 +63,7 @@ interface DayData {
 
 const TripDetails = () => {
   const { id } = useLocalSearchParams();
+  const router = useRouter();
   const [trip, setTrip] = useState<Trip | null>(null);
   const [loading, setLoading] = useState(true);
   const [daysData, setDaysData] = useState<DayData[]>([]);
@@ -183,8 +195,8 @@ const TripDetails = () => {
                 let tripDatePart = "";
                 if (loc.trip_date) {
                   // Handle both formats: with T separator or space separator
-                  tripDatePart = loc.trip_date.includes("T") 
-                    ? loc.trip_date.split("T")[0] 
+                  tripDatePart = loc.trip_date.includes("T")
+                    ? loc.trip_date.split("T")[0]
                     : loc.trip_date.split(" ")[0];
                 }
                 console.log("tripDatePart:", tripDatePart);
@@ -591,12 +603,17 @@ const TripDetails = () => {
   }
 
   return (
-    <ScrollView className="flex-1 bg-background pt-10 px-5">
-      <View className="mb-6">
-        <Text className="text-2xl font-bold">{trip.name}</Text>
-        <Text className="text-gray-500 mt-1">
-          {formatDate(trip.start_date)} - {formatDate(trip.end_date)}
-        </Text>
+    <ScrollView className="flex-1 bg-background pt-10 px-5 pb-20">
+      <View className="mb-6 flex-row items-center">
+        <TouchableOpacity onPress={() => router.back()} className="mr-2">
+          <Ionicons name="chevron-back" size={24} color="#000" />
+        </TouchableOpacity>
+        <View>
+          <Text className="text-2xl font-bold">{trip.name}</Text>
+          <Text className="text-gray-500 mt-1">
+            {formatDate(trip.start_date)} - {formatDate(trip.end_date)}
+          </Text>
+        </View>
       </View>
 
       {daysData.map((dayItem, index) => (
@@ -625,61 +642,81 @@ const TripDetails = () => {
             </Text>
 
             {/* Location Card - Show image if location exists, otherwise show "Add New Attractions" */}
-            <TouchableOpacity
-              className="bg-white rounded-xl shadow-sm overflow-hidden"
-              onPress={() => openAttractionsSelection(dayItem.day)}
-            >
-              {dayItem.location ? (
-                <View>
-                  <View className="relative">
-                    <Image
-                      source={dayItem.location.image || images.ellaRock}
-                      className="w-full h-40"
-                      resizeMode="cover"
-                    />
-                    <View className="absolute bottom-0 left-0 right-0 bg-black bg-opacity-50 p-3">
-                      <Text className="text-white font-bold">
-                        {dayItem.location.title}
-                      </Text>
+            <View className="p-2">
+              <TouchableOpacity
+                className="bg-white rounded-xl shadow-sm overflow-hidden"
+                onPress={() => openAttractionsSelection(dayItem.day)}
+              >
+                {dayItem.location ? (
+                  <View>
+                    <View className="relative">
+                      <Image
+                        source={dayItem.location.image || images.ellaRock}
+                        className="w-full h-40"
+                        resizeMode="cover"
+                      />
                     </View>
                   </View>
-                </View>
-              ) : (
-                <View className="p-5 items-center justify-center">
-                  <Ionicons name="add" size={32} color="#888" />
-                  <Text className="text-gray-500 mt-2 font-medium">
-                    Add New Attractions
-                  </Text>
-                </View>
-              )}
-            </TouchableOpacity>
+                ) : (
+                  <View className="p-5 items-center justify-center">
+                    <Ionicons name="add" size={32} color="#888" />
+                    <Text className="text-gray-500 mt-2 font-medium">
+                      Add New Attractions
+                    </Text>
+                  </View>
+                )}
+              </TouchableOpacity>
 
-            {/* Transport Method */}
-            <TouchableOpacity
-              className={`border ${dayItem.transport ? "border-solid border-gray-200" : "border-dashed border-gray-300"} p-4 rounded-xl items-center`}
-              onPress={() => openTransportSelection(dayItem.day)}
-            >
-              {dayItem.transport ? (
-                <View className="flex-row items-center">
-                  <Ionicons
-                    name={
-                      (transportTypes.find((t) => t.id === dayItem.transport)
-                        ?.icon as any) || "car"
-                    }
-                    size={20}
-                    color="#555"
-                  />
-                  <Text className="text-gray-700 text-sm ml-2">
-                    {transportTypes.find((t) => t.id === dayItem.transport)
-                      ?.name || "Transport"}
-                  </Text>
-                </View>
-              ) : (
-                <Text className="text-gray-400 text-sm">
-                  Tap Here To Choose Your Transport Method
+              {dayItem.location && (
+                <Text className="font-bold text-base mt-2 ml-1">
+                  {dayItem.location.title}
                 </Text>
               )}
-            </TouchableOpacity>
+            </View>
+
+            {/* Transport Method */}
+            <View className="p-2">
+              <TouchableOpacity
+                className={`border ${dayItem.transport ? "border-solid border-gray-200" : "border-dashed border-gray-300"} p-4 rounded-xl items-center`}
+                onPress={() => openTransportSelection(dayItem.day)}
+              >
+                {dayItem.transport ? (
+                  <View className="flex-row items-center">
+                    {(() => {
+                      const transportType = transportTypes.find(
+                        (t) => t.id === dayItem.transport,
+                      );
+                      if (transportType?.iconType === "ionicon") {
+                        return (
+                          <Ionicons
+                            name={(transportType?.icon as any) || "car"}
+                            size={20}
+                            color="#555"
+                          />
+                        );
+                      } else if (transportType) {
+                        return (
+                          <Image
+                            source={transportType.icon}
+                            style={{ width: 20, height: 20 }}
+                          />
+                        );
+                      } else {
+                        return <Ionicons name="car" size={20} color="#555" />;
+                      }
+                    })()}
+                    <Text className="text-gray-700 text-sm ml-2">
+                      {transportTypes.find((t) => t.id === dayItem.transport)
+                        ?.name || "Transport"}
+                    </Text>
+                  </View>
+                ) : (
+                  <Text className="text-gray-400 text-sm">
+                    Tap Here To Choose Your Transport Method
+                  </Text>
+                )}
+              </TouchableOpacity>
+            </View>
           </View>
         </View>
       ))}
@@ -697,7 +734,18 @@ const TripDetails = () => {
                 className="flex-row items-center p-3 border-b border-gray-100"
                 onPress={() => handleTransportSelect(transport.id)}
               >
-                <Ionicons name={transport.icon as any} size={24} color="#555" />
+                {transport.iconType === "ionicon" ? (
+                  <Ionicons
+                    name={transport.icon as any}
+                    size={24}
+                    color="#555"
+                  />
+                ) : (
+                  <Image
+                    source={transport.icon}
+                    style={{ width: 24, height: 24 }}
+                  />
+                )}
                 <Text className="ml-3 text-gray-800 font-medium">
                   {transport.name}
                 </Text>
@@ -773,8 +821,8 @@ const TripDetails = () => {
                 ) : searchResults.length > 0 ? (
                   <FlatList
                     data={searchResults}
-                    keyExtractor={(item, index) => item.id || index.toString()}
-                    renderItem={({ item }) => (
+                    keyExtractor={(item: any, index) => item.id || index.toString()}
+                    renderItem={({ item }: { item: any }) => (
                       <View className="bg-white rounded-2xl shadow-sm mb-4 overflow-hidden border border-gray-100">
                         {item.photos && item.photos.length > 0 ? (
                           <Image

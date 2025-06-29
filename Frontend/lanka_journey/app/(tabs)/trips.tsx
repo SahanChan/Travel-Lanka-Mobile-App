@@ -12,6 +12,8 @@ import { createClient } from "@supabase/supabase-js";
 import { Ionicons } from "@expo/vector-icons";
 import { router, useFocusEffect } from "expo-router";
 import TripCard from "../../components/TripCard";
+import axios from "axios";
+import { images } from "@/constants/images";
 
 interface Trip {
   id: number;
@@ -19,12 +21,45 @@ interface Trip {
   start_date: string;
   end_date: string;
   user_id: string;
+  image?: any;
   // Add other fields as needed
 }
 
 const Trips = () => {
   const [trips, setTrips] = useState<Trip[]>([]);
   const [loading, setLoading] = useState(false);
+
+  // Function to fetch image from Google Places API
+  const fetchPlaceImage = async (placeId: string) => {
+    try {
+      // Check if API key exists
+      if (!process.env.EXPO_PUBLIC_GOOGLE_MAPS_SDK_KEY) {
+        throw new Error("Google Maps API key is missing");
+      }
+
+      const response = await axios.get(
+        `https://places.googleapis.com/v1/places/${placeId}`,
+        {
+          headers: {
+            "Content-Type": "application/json",
+            "X-Goog-Api-Key": process.env.EXPO_PUBLIC_GOOGLE_MAPS_SDK_KEY,
+            "X-Goog-FieldMask": "photos",
+          },
+        },
+      );
+
+      if (response.data.photos && response.data.photos.length > 0) {
+        const photoName = response.data.photos[0].name;
+        return {
+          uri: `https://places.googleapis.com/v1/${photoName}/media?key=${process.env.EXPO_PUBLIC_GOOGLE_MAPS_SDK_KEY}&maxHeightPx=400&maxWidthPx=400`,
+        };
+      }
+      return null;
+    } catch (err) {
+      console.error("Error fetching place image:", err);
+      return null;
+    }
+  };
 
   // Get user and session from Clerk
   const { user } = useUser();
@@ -63,7 +98,46 @@ const Trips = () => {
         return;
       }
 
-      setTrips(data || []);
+      if (data && data.length > 0) {
+        // Process each trip to get its first location image
+        const tripsWithImages = await Promise.all(
+          data.map(async (trip) => {
+            try {
+              // Fetch trip_locations for this trip
+              const { data: locationsData, error: locationsError } = await client
+                .from("trip_locations")
+                .select("*")
+                .eq("trip_id", trip.id);
+
+              if (locationsError) {
+                console.error("Error loading trip locations:", locationsError);
+                return trip;
+              }
+
+              // If there are locations, get the first one's image
+              if (locationsData && locationsData.length > 0) {
+                const firstLocation = locationsData[0];
+
+                if (firstLocation.place_id) {
+                  const locationImage = await fetchPlaceImage(firstLocation.place_id);
+                  if (locationImage) {
+                    return { ...trip, image: locationImage };
+                  }
+                }
+              }
+
+              return trip;
+            } catch (err) {
+              console.error("Error processing trip image:", err);
+              return trip;
+            }
+          })
+        );
+
+        setTrips(tripsWithImages);
+      } else {
+        setTrips([]);
+      }
     } catch (error) {
       console.error("Error in loadTrips:", error);
     } finally {
@@ -105,7 +179,7 @@ const Trips = () => {
       name={item.name}
       startDate={item.start_date}
       endDate={item.end_date}
-      image={null} // Will be replaced with actual image from database later
+      image={item.image} // Using the image fetched from Google Places API
     />
   );
 
