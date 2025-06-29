@@ -10,29 +10,6 @@ import HomeScreenCard from "@/components/HomeScreenCard";
 import axios from "axios";
 import { images } from "@/constants/images";
 
-interface HomePageFlatListProps {
-  name?: string;
-  data?: Array<{
-    id: string;
-    image?: any;
-    title: string;
-    location?: string;
-  }>;
-}
-
-interface PlaceData {
-  id: string;
-  image?: any;
-  title: string;
-  location?: string;
-}
-
-interface Photo {
-  name: string;
-  widthPx?: number;
-  heightPx?: number;
-}
-
 const HomePageFlatList = ({ name, data }: HomePageFlatListProps) => {
   // Function to convert photo reference to a valid image source
   const getPhotoSource = (photo: Photo | undefined) => {

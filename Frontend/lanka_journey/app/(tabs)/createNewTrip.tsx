@@ -84,6 +84,11 @@ const CreateNewTrip = () => {
         return;
       }
 
+      // Reset form fields
+      setTripName("");
+      setStartDate(null);
+      setEndDate(null);
+
       Alert.alert("Success", "Trip created successfully!", [
         {
           text: "OK",
@@ -141,7 +146,7 @@ const CreateNewTrip = () => {
 
       <View className="flex-row items-center justify-between border border-gray-200 rounded-lg p-3 mb-4">
         <TextInput
-          placeholder="Start Dates"
+          placeholder="Start Date"
           placeholderTextColor="#999"
           className="flex-1 text-base "
           editable={false}
@@ -162,7 +167,7 @@ const CreateNewTrip = () => {
 
       <View className="flex-row items-center justify-between border border-gray-200 rounded-lg p-3 mb-4">
         <TextInput
-          placeholder="End Dates"
+          placeholder="End Date"
           placeholderTextColor="#999"
           className="flex-1 text-base "
           editable={false}

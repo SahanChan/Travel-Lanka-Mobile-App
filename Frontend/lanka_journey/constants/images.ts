@@ -17,6 +17,10 @@ import tuktukAdventures from "@/assets/images/tuktukAdventures.jpg";
 import kudaRavana from "@/assets/images/kudaRavana.jpg";
 import ellaRockViewPoint from "@/assets/images/ellaRockViewPoint.jpg";
 
+import bgImage1 from "@/assets/images/bgImageOne.jpg";
+import bgImage2 from "@/assets/images/bgImageTwo.jpg";
+import bgImage3 from "@/assets/images/bgImageThree.jpg";
+
 export const images = {
   navbar,
   createNewTrip,
@@ -35,4 +39,7 @@ export const images = {
   littleAdamsViewPoint,
   tuktukAdventures,
   logo,
+  bgImage1,
+  bgImage2,
+  bgImage3,
 };

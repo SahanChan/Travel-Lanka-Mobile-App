@@ -17,64 +17,11 @@ import { Ionicons } from "@expo/vector-icons";
 import { useSafeAreaInsets } from "react-native-safe-area-context";
 import { LinearGradient } from "expo-linear-gradient";
 import ReviewItem from "@/components/ReviewItem";
-import CustomBottomSheet, { CustomBottomSheetRef } from "@/components/CustomBottomSheet";
+import CustomBottomSheet, {
+  CustomBottomSheetRef,
+} from "@/components/CustomBottomSheet";
 import { useSession, useUser } from "@clerk/clerk-expo";
 import { createClient } from "@supabase/supabase-js";
-
-// Define interfaces for the Google Places API response
-interface DisplayName {
-  text: string;
-  languageCode?: string;
-}
-
-interface PrimaryTypeDisplayName {
-  text: string;
-  languageCode?: string;
-}
-
-interface EditorialSummary {
-  text: string;
-  languageCode?: string;
-}
-
-interface Photo {
-  name: string;
-  widthPx?: number;
-  heightPx?: number;
-}
-
-interface Review {
-  name?: string;
-  relativePublishTimeDescription?: string;
-  rating?: number;
-  text?: {
-    text?: string;
-    languageCode?: string;
-  };
-  originalText?: {
-    text?: string;
-    languageCode?: string;
-  };
-  authorAttribution?: {
-    displayName?: string;
-    uri?: string;
-    photoUri?: string;
-  };
-  publishTime?: string; // ISO 8601 string (optional in case parsing fails)
-  flagContentUri?: string;
-  googleMapsUri?: string;
-}
-
-interface PlaceDetails {
-  displayName?: DisplayName;
-  shortFormattedAddress?: string;
-  photos?: Photo[];
-  rating?: number;
-  editorialSummary?: EditorialSummary;
-  primaryTypeDisplayName?: PrimaryTypeDisplayName;
-  reviews?: Review[];
-  userRatingCount?: number;
-}
 
 const LocationDetails = () => {
   const { id } = useLocalSearchParams();
@@ -239,10 +186,7 @@ const LocationDetails = () => {
   return (
     <View className="flex-1 bg-background">
       {/* Collections Bottom Sheet */}
-      <CustomBottomSheet
-        ref={bottomSheetRef}
-        snapPoint="50%"
-      >
+      <CustomBottomSheet ref={bottomSheetRef} snapPoint="50%">
         <View className="flex-1">
           <Text className="text-xl font-bold mb-4">Save to Collection</Text>
 
@@ -254,14 +198,16 @@ const LocationDetails = () => {
           ) : collections.length === 0 ? (
             <View className="items-center justify-center py-4">
               <Text className="text-gray-600">No collections found</Text>
-              <TouchableOpacity 
+              <TouchableOpacity
                 onPress={() => {
                   bottomSheetRef.current?.close();
                   router.push("/(tabs)/saved");
                 }}
                 className="mt-2 bg-secondary py-2 px-4 rounded-lg"
               >
-                <Text className="text-white font-semibold">Create Collection</Text>
+                <Text className="text-white font-semibold">
+                  Create Collection
+                </Text>
               </TouchableOpacity>
             </View>
           ) : (
@@ -332,19 +278,19 @@ const LocationDetails = () => {
             contentContainerStyle={{ padding: 20, paddingBottom: 80 }}
             ListHeaderComponent={() => (
               <>
-                <View className="flex-row justify-between ">
-                  <View className="">
-                    <View className="flex-row gap-6 items-center">
+                <View className="flex-row justify-between">
+                  <View style={{ flex: 1, paddingRight: 10 }}>
+                    <View>
                       <Text
                         className="text-2xl font-bold text-gray-900"
-                        numberOfLines={1}
-                        ellipsizeMode="clip"
-                        style={{ maxWidth: "75%" }}
+                        numberOfLines={2}
+                        ellipsizeMode="tail"
+                        style={{ maxWidth: "80%" }}
                       >
                         {placeDetails?.displayName?.text || "Unknown Place"}
                       </Text>
                       {placeDetails?.rating ? (
-                        <View className="flex-row gap-1 items-center ">
+                        <View className="flex-row gap-1 items-center mt-1">
                           <Text className="text-xl font-semibold text-muted">
                             {placeDetails?.rating || ""}
                           </Text>
@@ -354,22 +300,26 @@ const LocationDetails = () => {
                           </Text>
                         </View>
                       ) : null}
+
+                      {placeDetails?.shortFormattedAddress ? (
+                        <Text className="text-sm text-gray-500 mt-1">
+                          📍{placeDetails?.shortFormattedAddress}, Sri Lanka
+                        </Text>
+                      ) : null}
+
+                      {placeDetails?.primaryTypeDisplayName?.text ? (
+                        <Text className="text-sm text-gray-500 mt-1">
+                          {placeDetails?.primaryTypeDisplayName?.text || ""}
+                        </Text>
+                      ) : null}
                     </View>
-
-                    {placeDetails?.shortFormattedAddress ? (
-                      <Text className="text-sm text-gray-500 mt-1">
-                        📍{placeDetails?.shortFormattedAddress}, Sri Lanka
-                      </Text>
-                    ) : null}
-
-                    {placeDetails?.primaryTypeDisplayName?.text ? (
-                      <Text className="text-sm text-gray-500 mt-1">
-                        {placeDetails?.primaryTypeDisplayName?.text || ""}
-                      </Text>
-                    ) : null}
                   </View>
                   <TouchableOpacity
-                    className="pr-4"
+                    style={{
+                      width: 40,
+                      alignItems: "center",
+                      justifyContent: "flex-start",
+                    }}
                     onPress={handleBookmarkPress}
                   >
                     <Ionicons
@@ -416,18 +366,18 @@ const LocationDetails = () => {
             showsVerticalScrollIndicator={false}
           >
             <View className="flex-row justify-between">
-              <View className="">
-                <View className="flex-row gap-6 items-center">
+              <View style={{ flex: 1, paddingRight: 10 }}>
+                <View>
                   <Text
                     className="text-2xl font-bold text-gray-900"
-                    numberOfLines={1}
+                    numberOfLines={2}
                     ellipsizeMode="tail"
-                    style={{ maxWidth: "20%" }}
+                    style={{ maxWidth: "80%" }}
                   >
                     {placeDetails?.displayName?.text || "Unknown Place"}
                   </Text>
                   {placeDetails?.rating ? (
-                    <View className="flex-row gap-1 items-center ">
+                    <View className="flex-row gap-1 items-center mt-1">
                       <Text className="text-xl font-semibold text-muted">
                         {placeDetails?.rating || ""}
                       </Text>
@@ -437,22 +387,26 @@ const LocationDetails = () => {
                       </Text>
                     </View>
                   ) : null}
+
+                  {placeDetails?.shortFormattedAddress ? (
+                    <Text className="text-sm text-gray-500 mt-1">
+                      📍{placeDetails?.shortFormattedAddress}, Sri Lanka
+                    </Text>
+                  ) : null}
+
+                  {placeDetails?.primaryTypeDisplayName?.text ? (
+                    <Text className="text-sm text-gray-500 mt-1">
+                      {placeDetails?.primaryTypeDisplayName?.text || ""}
+                    </Text>
+                  ) : null}
                 </View>
-
-                {placeDetails?.shortFormattedAddress ? (
-                  <Text className="text-sm text-gray-500 mt-1">
-                    📍{placeDetails?.shortFormattedAddress}, Sri Lanka
-                  </Text>
-                ) : null}
-
-                {placeDetails?.primaryTypeDisplayName?.text ? (
-                  <Text className="text-sm text-gray-500 mt-1">
-                    {placeDetails?.primaryTypeDisplayName?.text || ""}
-                  </Text>
-                ) : null}
               </View>
               <TouchableOpacity
-                className="pr-4"
+                style={{
+                  width: 40,
+                  alignItems: "center",
+                  justifyContent: "flex-start",
+                }}
                 onPress={handleBookmarkPress}
               >
                 <Ionicons name="bookmark-outline" size={22} color="#ffc600" />

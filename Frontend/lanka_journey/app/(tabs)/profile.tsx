@@ -5,6 +5,7 @@ import {
   TouchableOpacity,
   SafeAreaView,
   ScrollView,
+  Alert,
 } from "react-native";
 import React from "react";
 import { images } from "@/constants/images";
@@ -13,9 +14,79 @@ import { useUser } from "@clerk/clerk-expo";
 import { legalLinks, settingsOptions } from "@/constants";
 import { SignOutButton } from "@/components/SignOutButton";
 import LocationText from "@/components/LocationText";
+import { useRouter } from "expo-router";
+import AsyncStorage from "@react-native-async-storage/async-storage";
 
 const Profile = () => {
   const { user } = useUser();
+  const router = useRouter();
+
+  const handleSettingsPress = (label: string) => {
+    switch (label) {
+      case "Notifications":
+        router.push("/notifications");
+        break;
+      case "Language":
+        router.push("/language");
+        break;
+      case "Currency":
+        router.push("/currency");
+        break;
+      case "Reset Onboarding":
+        handleResetOnboarding();
+        break;
+      default:
+        break;
+    }
+  };
+
+  const handleResetOnboarding = () => {
+    Alert.alert(
+      "Reset Onboarding",
+      "This will clear your onboarding progress and show the welcome screens again when you restart the app. Continue?",
+      [
+        {
+          text: "Cancel",
+          style: "cancel",
+        },
+        {
+          text: "Reset",
+          style: "destructive",
+          onPress: async () => {
+            try {
+              await AsyncStorage.removeItem("hasSeenOnboarding");
+              Alert.alert(
+                "Success",
+                "Onboarding has been reset! Please restart the app to see the onboarding screens again.",
+                [{ text: "OK" }]
+              );
+            } catch (error) {
+              Alert.alert(
+                "Error",
+                "Failed to reset onboarding. Please try again.",
+                [{ text: "OK" }]
+              );
+              console.error("Error resetting onboarding:", error);
+            }
+          },
+        },
+      ]
+    );
+  };
+
+  const handleLegalPress = (item: string) => {
+    switch (item) {
+      case "Privacy Policy":
+        router.push("/privacy-policy");
+        break;
+      case "Terms and conditions":
+        router.push("/terms-conditions");
+        break;
+      default:
+        break;
+    }
+  };
+
   return (
     <SafeAreaView className="flex-1 bg-background">
       <ScrollView
@@ -45,7 +116,7 @@ const Profile = () => {
               </View>
             </View>
           </View>
-          <TouchableOpacity>
+          <TouchableOpacity onPress={() => router.push("/edit-profile")}>
             <Ionicons name="chevron-forward-outline" size={24} />
           </TouchableOpacity>
         </TouchableOpacity>
@@ -53,6 +124,7 @@ const Profile = () => {
           {settingsOptions.map((item, index) => (
             <TouchableOpacity
               key={index}
+              onPress={() => handleSettingsPress(item.label)}
               className="flex-row justify-between items-center px-4 py-6 border-b border-gray-200"
             >
               <View className="flex-row items-center gap-5">
@@ -68,6 +140,7 @@ const Profile = () => {
           {legalLinks.map((item, index) => (
             <TouchableOpacity
               key={index}
+              onPress={() => handleLegalPress(item)}
               className="flex-row justify-between items-center px-4 py-6 border-b border-gray-200"
             >
               <View className="flex-row items-center gap-5">

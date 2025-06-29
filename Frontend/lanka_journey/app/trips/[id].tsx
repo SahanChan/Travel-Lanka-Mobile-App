@@ -6,8 +6,8 @@ import {
   ActivityIndicator,
   TextInput,
   FlatList,
-  Image,
 } from "react-native";
+import { Image } from "expo-image";
 import React, { useState, useEffect, useRef } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useFocusEffect, useRouter } from "expo-router";
@@ -41,25 +41,6 @@ const transportTypes = [
     iconType: "image",
   },
 ];
-
-interface Trip {
-  id: number;
-  name: string;
-  start_date: string;
-  end_date: string;
-  user_id: string;
-}
-
-interface DayData {
-  day: number;
-  date: Date;
-  transport: string | null;
-  location?: {
-    place_id: string;
-    title: string;
-    image?: any;
-  } | null;
-}
 
 const TripDetails = () => {
   const { id } = useLocalSearchParams();
@@ -821,7 +802,9 @@ const TripDetails = () => {
                 ) : searchResults.length > 0 ? (
                   <FlatList
                     data={searchResults}
-                    keyExtractor={(item: any, index) => item.id || index.toString()}
+                    keyExtractor={(item: any, index) =>
+                      item.id || index.toString()
+                    }
                     renderItem={({ item }: { item: any }) => (
                       <View className="bg-white rounded-2xl shadow-sm mb-4 overflow-hidden border border-gray-100">
                         {item.photos && item.photos.length > 0 ? (
@@ -830,7 +813,8 @@ const TripDetails = () => {
                               uri: `https://places.googleapis.com/v1/${item.photos[0].name}/media?key=${process.env.EXPO_PUBLIC_GOOGLE_MAPS_SDK_KEY}&maxHeightPx=400&maxWidthPx=400`,
                               headers: {
                                 "X-Goog-Api-Key":
-                                  process.env.EXPO_PUBLIC_GOOGLE_MAPS_SDK_KEY,
+                                  process.env.EXPO_PUBLIC_GOOGLE_MAPS_SDK_KEY ||
+                                  "",
                               },
                             }}
                             className="w-full h-40"

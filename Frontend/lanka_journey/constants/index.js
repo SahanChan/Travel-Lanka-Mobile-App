@@ -191,6 +191,10 @@ const settingsOptions = [
     label: "Currency",
     icon: <Ionicons name="cash-outline" size={20} />,
   },
+  {
+    label: "Reset Onboarding",
+    icon: <Ionicons name="refresh-outline" size={20} />,
+  },
 ];
 
 const legalLinks = ["Privacy Policy", "Terms and conditions"];

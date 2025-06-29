@@ -18,19 +18,6 @@ import CustomBottomSheet, {
 import axios from "axios";
 import { useFocusEffect } from "@react-navigation/native";
 
-// const collectionsData = [
-//   {
-//     id: "1",
-//     title: "Default Collection",
-//     image: images.acresHotel, // replace with your image
-//   },
-//   {
-//     id: "2",
-//     title: "Beaches",
-//     image: images.kudaRavana,
-//   },
-// ];
-
 const Saved = () => {
   const [collections, setCollections] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
@@ -115,6 +102,28 @@ const Saved = () => {
       if (error) {
         console.error("Error loading collections:", error);
         return;
+      }
+
+      // Check if there are no collections and create a default "favourites" collection
+      if (data.length === 0) {
+        const { data: newCollection, error: createError } = await client
+          .from("collections")
+          .insert({
+            name: "Favourites",
+            // user_id comes from Clerk auth context automatically
+          })
+          .select();
+
+        if (createError) {
+          console.error("Error creating default collection:", createError);
+        } else {
+          console.log(
+            "Default 'Favourites' collection created successfully:",
+            newCollection,
+          );
+          // Add the new collection to data array
+          data.push({ ...newCollection[0], collection_locations: [] });
+        }
       }
 
       // Process collections to add images

@@ -2,29 +2,6 @@ import { View, Text, Image, TouchableOpacity } from "react-native";
 import React, { useState } from "react";
 import { Ionicons } from "@expo/vector-icons";
 
-// Define the Review interface
-interface ReviewProps {
-  review: {
-    name?: string;
-    relativePublishTimeDescription?: string;
-    rating?: number;
-    text?: {
-      text?: string;
-      languageCode?: string;
-    };
-    originalText?: {
-      text?: string;
-      languageCode?: string;
-    };
-    authorAttribution?: {
-      displayName?: string;
-      uri?: string;
-      photoUri?: string;
-    };
-    publishTime?: string;
-  };
-}
-
 const ReviewItem: React.FC<ReviewProps> = ({ review }) => {
   // State to track if the review text is expanded
   const [isExpanded, setIsExpanded] = useState(false);
