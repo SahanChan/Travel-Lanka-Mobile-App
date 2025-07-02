@@ -28,6 +28,9 @@ const Saved = () => {
   const bottomSheetRef = useRef<CustomBottomSheetRef>(null);
   const locationsBottomSheetRef = useRef<CustomBottomSheetRef>(null);
 
+  // Ref to track if loadCollections is currently running
+  const isLoadingCollections = useRef(false);
+
   // Snap points for the bottom sheets (percentage of screen height)
   const snapPoint = "30%";
   const locationsSnapPoint = "50%";
@@ -91,6 +94,12 @@ const Saved = () => {
   const loadCollections = async () => {
     if (!user) return;
 
+    // Prevent concurrent calls to loadCollections
+    if (isLoadingCollections.current) {
+      return;
+    }
+
+    isLoadingCollections.current = true;
     setLoading(true);
     try {
       // Fetch collections with their locations
@@ -104,6 +113,7 @@ const Saved = () => {
         return;
       }
 
+      console.log("test");
       // Check if there are no collections and create a default "favourites" collection
       if (data.length === 0) {
         const { data: newCollection, error: createError } = await client
@@ -155,6 +165,7 @@ const Saved = () => {
       console.error("Error in loadCollections:", error);
     } finally {
       setLoading(false);
+      isLoadingCollections.current = false;
     }
   };
 

@@ -6,8 +6,8 @@ import {
   ActivityIndicator,
   TextInput,
   FlatList,
+  Image,
 } from "react-native";
-import { Image } from "expo-image";
 import React, { useState, useEffect, useRef } from "react";
 import { Ionicons } from "@expo/vector-icons";
 import { useLocalSearchParams, useFocusEffect, useRouter } from "expo-router";

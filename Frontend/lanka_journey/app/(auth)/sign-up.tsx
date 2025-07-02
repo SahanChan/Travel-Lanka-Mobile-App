@@ -94,6 +94,12 @@ export default function SignUpScreen() {
 
   const onPress = useCallback(async () => {
     try {
+      const redirectUrlX = AuthSession.makeRedirectUri({
+        scheme: "lankajourney",
+        path: "sso-callback", // your app scheme (e.g., "lankajourney" for production)
+      });
+      console.log("Redirect URI:", redirectUrlX);
+
       // Start the authentication process by calling `startSSOFlow()`
       const { createdSessionId, setActive, signIn, signUp } =
         await startSSOFlow({
@@ -101,7 +107,11 @@ export default function SignUpScreen() {
           // For web, defaults to current path
           // For native, you must pass a scheme, like AuthSession.makeRedirectUri({ scheme, path })
           // For more info, see https://docs.expo.dev/versions/latest/sdk/auth-session/#authsessionmakeredirecturioptions
-          redirectUrl: AuthSession.makeRedirectUri(),
+          redirectUrl: AuthSession.makeRedirectUri({
+            scheme: "lankajourney",
+            path: "sso-callback",
+            isTripleSlashed: true,
+          }),
         });
 
       // If sign in was successful, set the active session
@@ -180,6 +190,7 @@ export default function SignUpScreen() {
       // and redirect the user
       if (signUpAttempt.status === "complete") {
         await setActive({ session: signUpAttempt.createdSessionId });
+        // makeFavouriteCollection();
         router.replace("/");
       } else {
         // If the status is not complete, check why. User may need to

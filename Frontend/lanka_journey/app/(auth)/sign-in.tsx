@@ -52,6 +52,13 @@ export default function Page() {
 
   const onPress = useCallback(async () => {
     try {
+      const redirectUrlX = AuthSession.makeRedirectUri({
+        scheme: "lankajourney",
+        path: "sso-callback",
+        // preferLocalhost: true,
+        isTripleSlashed: true, // your app scheme (e.g., "lankajourney" for production)
+      });
+      console.log("Redirect URI:", redirectUrlX);
       // Start the authentication process by calling `startSSOFlow()`
       const { createdSessionId, setActive, signIn, signUp } =
         await startSSOFlow({
@@ -59,7 +66,11 @@ export default function Page() {
           // For web, defaults to current path
           // For native, you must pass a scheme, like AuthSession.makeRedirectUri({ scheme, path })
           // For more info, see https://docs.expo.dev/versions/latest/sdk/auth-session/#authsessionmakeredirecturioptions
-          redirectUrl: AuthSession.makeRedirectUri(),
+          redirectUrl: AuthSession.makeRedirectUri({
+            scheme: "lankajourney",
+            path: "sso-callback",
+            isTripleSlashed: true,
+          }),
         });
 
       // If sign in was successful, set the active session

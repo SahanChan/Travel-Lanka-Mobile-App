@@ -1,6 +1,7 @@
 import { View, Text, Image, TouchableOpacity } from "react-native";
 import React from "react";
 import { Link, LinkProps } from "expo-router";
+import { images } from "@/constants/images";
 
 interface TripCardProps {
   id: string;
@@ -33,7 +34,7 @@ const TripCard: React.FC<TripCardProps> = ({
       <Link href={`/trips/${id}`} asChild>
         <TouchableOpacity activeOpacity={0.8}>
           <Image
-            source={image || require("../assets/images/tuktukAdventures.jpg")}
+            source={image || images.ellaRock}
             className="w-full h-40"
             resizeMode="cover"
           />
