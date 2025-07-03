@@ -52,13 +52,13 @@ export default function Page() {
 
   const onPress = useCallback(async () => {
     try {
-      const redirectUrlX = AuthSession.makeRedirectUri({
-        scheme: "lankajourney",
-        path: "sso-callback",
-        // preferLocalhost: true,
-        isTripleSlashed: true, // your app scheme (e.g., "lankajourney" for production)
-      });
-      console.log("Redirect URI:", redirectUrlX);
+      // const redirectUrlX = AuthSession.makeRedirectUri({
+      //   scheme: "lankajourney",
+      //   path: "sso-callback",
+      //   // preferLocalhost: true,
+      //   isTripleSlashed: true, // your app scheme (e.g., "lankajourney" for production)
+      // });
+      // console.log("Redirect URI:", redirectUrlX);
       // Start the authentication process by calling `startSSOFlow()`
       const { createdSessionId, setActive, signIn, signUp } =
         await startSSOFlow({

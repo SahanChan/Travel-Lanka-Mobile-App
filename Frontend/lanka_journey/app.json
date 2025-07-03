@@ -13,12 +13,11 @@
       "config": {}
     },
     "android": {
-      "versionCode": 8,
+      "versionCode": 16,
       "adaptiveIcon": {
         "foregroundImage": "./assets/images/logo.png",
-        "backgroundColor": "transparent"
+        "backgroundColor": "#FFFFFF"
       },
-      "edgeToEdgeEnabled": true,
       "package": "com.sahanchan.lankajourney",
       "permissions": [
         "android.permission.ACCESS_COARSE_LOCATION",
@@ -41,10 +40,10 @@
       [
         "expo-splash-screen",
         {
-          "image": "./assets/images/bgImageThree.jpg",
+          "image": "./assets/images/logo.png",
           "imageWidth": 200,
-          "resizeMode": "cover",
-          "backgroundColor": "#ffc600"
+          "resizeMode": "contain",
+          "backgroundColor": "#ffffff"
         }
       ]
     ],
